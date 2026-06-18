@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIVE FORMULA-DRIVEN WORLD CUP 2026 ENGINE</title>
+    <style>
+        :root {
+            --bg-color: #060b13;
+            --card-bg: #0f172a;
+            --border-color: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #64748b;
+            --accent-blue: #1d4ed8;
+            --accent-green: #10b981;
+            --master-gold: #ca8a04;
+            --seed-bg: #1e293b;
+            --seed-txt: #38bdf8;
+            --random-purple: #8b5cf6;
+            --odds-txt: #10b981;
+        }
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 20px; }
+        .container { max-width: 1750px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 20px; }
+        h1 { margin: 0; font-size: 1.8rem; color: #38bdf8; text-transform: uppercase; }
+
+        .tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 25px; }
+        .tab-btn {
+            background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-muted);
+            padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;
+        }
+        .tab-btn.active { background: var(--accent-blue); color: white; border-color: var(--accent-blue); }
+        .tab-btn.master-tab.active { background: var(--master-gold); border-color: var(--master-gold); }
+
+        .section-title { font-size: 1.1rem; color: #38bdf8; text-transform: uppercase; margin: 25px 0 15px 0; border-left: 4px solid var(--accent-blue); padding-left: 10px; font-weight: bold; }
+
+        .groups-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 15px; margin-bottom: 30px; }
+        .group-card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; }
+        .group-header { font-size: 0.85rem; font-weight: 800; color: #38bdf8; text-transform: uppercase; margin-bottom: 8px; border-bottom: 1px solid var(--border-color); padding-bottom: 4px; }
+        .group-row { display: flex; align-items: center; justify-content: space-between; padding: 5px 8px; font-size: 0.8rem; background: #0b1324; margin: 3px 0; border-radius: 4px; }
+        .group-select { background: #1e293b; color: white; border: 1px solid var(--border-color); font-size: 0.75rem; border-radius: 4px; padding: 2px 4px; cursor: pointer; max-width: 170px; }
+
+        .bracket-grid {
+            display: grid; grid-template-columns: 210px 200px 200px 240px 200px 200px 210px; gap: 12px;
+            align-items: center; background: #020617; padding: 20px; border-radius: 12px; border: 1px solid #1e293b; overflow-x: auto;
+        }
+        .column { display: flex; flex-direction: column; justify-content: space-around; min-height: 950px; }
+        .column-title { text-align: center; font-size: 0.7rem; text-transform: uppercase; color: #38bdf8; font-weight: 800; margin-bottom: 8px; }
+        .matchup { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 6px; padding: 3px; box-shadow: 0 4px 6px rgba(0,0,0,0.5); position: relative; }
+        .team-row { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8rem; height: 24px; white-space: nowrap; overflow: hidden; }
+        .team-row:hover { background: rgba(56, 189, 248, 0.12); }
+        .team-row.selected { background: var(--accent-green) !important; color: white !important; font-weight: bold; }
+        .team-row.selected .odds-badge { color: white !important; }
+        .seed-badge { background: var(--seed-bg); color: var(--seed-txt); font-size: 0.65rem; font-weight: bold; padding: 2px 5px; border-radius: 3px; margin-right: 8px; min-width: 18px; text-align: center; }
+        .odds-badge { color: var(--odds-txt); font-size: 0.65rem; font-weight: bold; margin-left: auto; padding-left: 5px; }
+
+        .center-stage { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 40px; height: 100%; }
+        .podium { background: linear-gradient(135deg, #eab308, #ca8a04); color: #020617; padding: 18px; border-radius: 8px; font-weight: 900; text-align: center; width: 170px; }
+        .panel { background: var(--card-bg); padding: 20px; margin-top: 20px; border-radius: 10px; text-align: center; border: 1px solid var(--border-color); }
+
+        .control-actions { display: flex; justify-content: center; align-items: center; gap: 15px; margin-top: 5px; flex-wrap: wrap; }
+        .btn-action { background: var(--accent-green); color: white; border: none; padding: 12px 35px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: background 0.2s; }
+        .btn-action:hover { background: #059669; }
+        .btn-random { background: transparent; color: #a78bfa; border: 2px solid var(--random-purple); padding: 10px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .btn-random:hover { background: var(--random-purple); color: white; box-shadow: 0 0 12px rgba(139, 92, 246, 0.4); }
+        .btn-clear { background: transparent; color: #f87171; border: 2px solid #ef4444; padding: 10px 25px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 1rem; transition: all 0.2s; }
+        .btn-clear:hover { background: #ef4444; color: white; box-shadow: 0 0 12px rgba(239, 68, 68, 0.4); }
+
+        .status-msg { margin-top: 15px; color: #fbbf24; font-size: 0.85rem; font-weight: 500; }
+        .lock-notice { background: #111827; border: 2px dashed #ef4444; border-radius: 8px; padding: 40px; text-align: center; font-size: 1.2rem; color: #f8fafc; font-weight: bold; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>🏆 LIVE FORMULA-DRIVEN WORLD CUP 2026 ENGINE</h1>
+    </header>
+
+    <div class="tabs">
+        <button class="tab-btn master-tab" id="btn-master" onclick="switchUser('master')">📢 Master Override</button>
+        <button class="tab-btn" id="btn-sam" onclick="switchUser('sam')">Sam</button>
+        <button class="tab-btn" id="btn-daniel" onclick="switchUser('daniel')">Daniel</button>
+        <button class="tab-btn" id="btn-barry" onclick="switchUser('barry')">Barry</button>
+        <button class="tab-btn" id="btn-poppa" onclick="switchUser('poppa')">Poppa</button>
+        <button class="tab-btn" id="btn-alan" onclick="switchUser('alan')">Alan</button>
+        <button class="tab-btn" id="btn-terry" onclick="switchUser('terry')">Terry</button>
+    </div>
+
+    <div id="engine-workspace" style="display: none;">
+        <div class="section-title">Step 1: Group Stage Results</div>
+        <div class="groups-container" id="groups-root"></div>
+
+        <div class="section-title">Step 2: Calculated Knockout Tree</div>
+        <div class="bracket-grid" id="bracket-root"></div>
+
+        <div class="panel">
+            <span style="font-weight: bold;">Modifying View Matrix:</span>
+            <span id="display-user-label" style="font-weight: bold; margin-right: 25px;">None</span>
+
+            <div class="control-actions">
+                <button class="btn-clear" onclick="clearEntireBoard()">🗑️ Clear My Picks</button>
+                <button class="btn-random" onclick="randomizeEntireBoard()">🎲 Randomize Entire Board</button>
+                <button class="btn-action" onclick="sendDataToCloud()">Save Profile State to Cloud</button>
+            </div>
+            <div id="status" class="status-msg">Ready for selections...</div>
+        </div>
+    </div>
+
+    <div id="lock-screen" class="lock-notice">
+        🔒 ACCESS RESTRICTED<br>
+        <span style="font-size: 0.9rem; color: #9ca3af; font-weight: normal; margin-top: 8px; display: inline-block;">Please select a profile tab above and enter your passcode to initialize the engine matrix.</span>
+    </div>
+</div>
+
+<script>
+    const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbyOsVNNULZrBwAQmv4yPvtY0N236xq3Ie5Zr1SY0fcB5ZPUqC2wK5WGCKEwbDjQOPY5/exec';
+
+    const groupTeams = {
+        A: ["Mexico", "South Africa", "South Korea", "Czechia"], B: ["Canada", "Bosnia", "Switzerland", "Qatar"],
+        C: ["Brazil", "Morocco", "Haiti", "Scotland"], D: ["USA", "Paraguay", "Australia", "Turkey"],
+        E: ["Germany", "Curaçao", "Ivory Coast", "Ecuador"], F: ["Netherlands", "Japan", "Tunisia", "Sweden"],
+        G: ["Belgium", "Egypt", "Iran", "New Zealand"], H: ["Spain", "Cabo Verde", "Saudi Arabia", "Uruguay"],
+        I: ["France", "Senegal", "Norway", "Iraq"], J: ["Argentina", "Algeria", "Austria", "Jordan"],
+        K: ["Portugal", "Uzbekistan", "Colombia", "Congo DR"], L: ["England", "Croatia", "Ghana", "Panama"]
+    };
+
+    const TEAM_POWER_INDEX = {
+        "Spain": 95, "France": 93, "England": 88, "Portugal": 85,
+        "Brazil": 85, "Argentina": 82, "Germany": 78, "Netherlands": 75,
+        "Belgium": 72, "Norway": 65, "Colombia": 62, "Mexico": 58,
+        "Morocco": 58, "Japan": 58, "Uruguay": 56, "USA": 55,
+        "Croatia": 52, "Switzerland": 50, "Ecuador": 48, "Turkey": 48,
+        "Austria": 44, "Senegal": 40, "Sweden": 35, "Ivory Coast": 35,
+        "Paraguay": 32, "Canada": 30, "Scotland": 30, "Algeria": 30,
+        "Bosnia": 30, "Egypt": 25, "South Korea": 22, "Ghana": 22,
+        "Czechia": 20, "Tunisia": 18, "South Africa": 15, "Uzbekistan": 15,
+        "Congo DR": 12, "Iran": 12, "Panama": 10, "Jordan": 8,
+        "New Zealand": 8, "Cabo Verde": 6, "Saudi Arabia": 6, "Iraq": 5,
+        "Qatar": 4, "Curaçao": 2, "Haiti": 1
+    };
+
+    const passwords = {
+        master: "master",
+        sam: "samfriedman",
+        daniel: "danielfriedman",
+        barry: "barryfriedman",
+        alan: "alanfriedman",
+        poppa: "earlefriedman",
+        terry: "terrybloch"
+    };
+
+    let activeUser = null;
+    let db = { master: {}, sam: {}, daniel: {}, barry: {}, poppa: {}, alan: {}, terry: {} };
+
+    function switchUser(userId) {
+        let input = prompt(`Enter security password to access ${userId.toUpperCase()}'s bracket profile:`);
+        if (input === null) return;
+        if (input.toLowerCase().trim() !== passwords[userId]) {
+            alert("❌ Access Denied: Incorrect Password.");
+            return;
+        }
+
+        activeUser = userId;
+
+        const userList = ['master','sam','daniel','barry','poppa','alan','terry'];
+        userList.forEach(u => {
+            document.getElementById(`btn-${u}`).classList.toggle('active', u === userId);
+        });
+
+        document.getElementById('lock-screen').style.display = 'none';
+        document.getElementById('engine-workspace').style.display = 'block';
+
+        const label = document.getElementById('display-user-label');
+        label.innerText = userId === 'master' ? 'Master Override' : userId.charAt(0).toUpperCase() + userId.slice(1);
+        label.style.color = userId === 'master' ? '#ca8a04' : '#38bdf8';
+
+        renderGroups();
+        renderTree();
+    }
+
+    function calculateLooseHeadToHeadOdds(team1, team2) {
+        if (!team1 || !team2 || team1.includes('Winner') || team1.includes('Wildcard') || team2.includes('Winner') || team2.includes('Wildcard')) {
+            return { odds1: 50, odds2: 50 };
+        }
+
+        let w1 = TEAM_POWER_INDEX[team1] || 25;
+        let w2 = TEAM_POWER_INDEX[team2] || 25;
+
+        let strictP1 = w1 / (w1 + w2);
+        let strictP2 = w2 / (w1 + w2);
+
+        let looseP1 = (strictP1 * 0.5) + 0.25;
+        let looseP2 = (strictP2 * 0.5) + 0.25;
+
+        let pct1 = Math.round(looseP1 * 100);
+        let pct2 = 100 - pct1;
+
+        return { odds1: pct1, odds2: pct2 };
+    }
+
+    function calculateGroupPercentages(groupLetter) {
+        let teams = groupTeams[groupLetter];
+        let weights = teams.map(t => TEAM_POWER_INDEX[t] || 25);
+        let sum = weights.reduce((a, b) => a + b, 0);
+
+        let rounded = teams.map(t => {
+            let pct = Math.round(((TEAM_POWER_INDEX[t] || 25) / sum) * 100);
+            return { team: t, pct: pct };
+        });
+
+        let currentSum = rounded.reduce((a, b) => a + b.pct, 0);
+        if (currentSum !== 100) {
+            rounded[0].pct += (100 - currentSum);
+        }
+
+        let map = {};
+        rounded.forEach(obj => { map[obj.team] = obj.pct; });
+        return map;
+    }
+
+    function selectGroupFinisher(groupLetter, slot, val) {
+        if (!activeUser) return;
+
+        db[activeUser][`G_${groupLetter}_${slot}`] = val;
+
+        if (activeUser === 'master') {
+            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                db[p][`G_${groupLetter}_${slot}`] = val;
+            });
+        }
+
+        renderTree();
+    }
+
+    function clearEntireBoard() {
+        if (!activeUser) return;
+
+        let confirmClear = confirm(`Are you sure you want to clear all picks for ${activeUser.toUpperCase()}? This completely wipes your current board state.`);
+        if (!confirmClear) return;
+
+        db[activeUser] = {};
+
+        if (activeUser === 'master') {
+            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                db[p] = {};
+            });
+        }
+
+        renderGroups();
+        renderTree();
+        document.getElementById('status').innerText = "🗑️ Your bracket profile has been cleared!";
+    }
+
+    function randomizeEntireBoard() {
+        if (!activeUser) return;
+
+        Object.keys(groupTeams).forEach(g => {
+            let pool = [...groupTeams[g]];
+            for (let i = pool.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [pool[i], pool[j]] = [pool[j], pool[i]];
+            }
+
+            db[activeUser][`G_${g}_1st`] = pool[0];
+            db[activeUser][`G_${g}_2nd`] = pool[1];
+            db[activeUser][`G_${g}_3rd`] = pool[2];
+
+            if (activeUser === 'master') {
+                ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                    db[p][`G_${g}_1st`] = pool[0];
+                    db[p][`G_${g}_2nd`] = pool[1];
+                    db[p][`G_${g}_3rd`] = pool[2];
+                });
+            }
+        });
+
+        for (let m = 49; m <= 80; m++) {
+            delete db[activeUser][`M${m}`];
+            delete db[activeUser][`M${m}_t1`];
+            delete db[activeUser][`M${m}_t2`];
+            if (activeUser === 'master') {
+                ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                    delete db[p][`M${m}`];
+                    delete db[p][`M${m}_t1`];
+                    delete db[p][`M${m}_t2`];
+                });
+            }
+        }
+
+        const leftR32 = getLeftR32Matchups();
+        const rightR32 = getRightR32Matchups();
+
+        leftR32.concat(rightR32).forEach(m => {
+            let oddsObj = calculateLooseHeadToHeadOdds(m.t1, m.t2);
+            let pick = (Math.random() * 100 < oddsObj.odds1) ? m.t1 : m.t2;
+            selectWinnerDirect(m.id, pick);
+        });
+
+        const downstreamRounds = [
+            ['M65', 'M66', 'M67', 'M68', 'M69', 'M70', 'M71', 'M72'],
+            ['M73', 'M74', 'M75', 'M76'],
+            ['M77', 'M78'],
+            ['M80']
+        ];
+
+        downstreamRounds.forEach(roundMatches => {
+            roundMatches.forEach(id => {
+                let t1 = db[activeUser][id + "_t1"] || "";
+                let t2 = db[activeUser][id + "_t2"] || "";
+
+                if(t1 && t2) {
+                    let oddsObj = calculateLooseHeadToHeadOdds(t1, t2);
+                    let pick = (Math.random() * 100 < oddsObj.odds1) ? t1 : t2;
+                    selectWinnerDirect(id, pick);
+                }
+            });
+        });
+
+        renderGroups();
+        renderTree();
+        document.getElementById('status').innerText = "🎲 Simulation pipeline complete! All nodes loaded loosely using Vegas matrix.";
+    }
+
+    function selectWinnerDirect(matchId, selectedTeam) {
+        if (!selectedTeam || selectedTeam.includes('Winner') || selectedTeam.includes('Wildcard') || selectedTeam === "Pending") return;
+        db[activeUser][matchId] = selectedTeam;
+        if (activeUser === 'master') {
+            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                db[p][matchId] = selectedTeam;
+                propagateTreeNodes(matchId, selectedTeam, p);
+            });
+        }
+        propagateTreeNodes(matchId, selectedTeam, activeUser);
+    }
+
+    function selectWinner(matchId, selectedTeam) {
+        if (!activeUser || !selectedTeam || selectedTeam.includes('Winner') || selectedTeam.includes('Wildcard') || selectedTeam === "") return;
+        db[activeUser][matchId] = selectedTeam;
+        if (activeUser === 'master') {
+            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                db[p][matchId] = selectedTeam;
+                propagateTreeNodes(matchId, selectedTeam, p);
+            });
+        }
+        propagateTreeNodes(matchId, selectedTeam, activeUser);
+        renderTree();
+    }
+
+    function propagateTreeNodes(matchId, team, user) {
+        const paths = {
+            'M49': { target: 'M65', slot: 't1' }, 'M50': { target: 'M65', slot: 't2' },
+            'M51': { target: 'M66', slot: 't1' }, 'M52': { target: 'M66', slot: 't2' },
+            'M53': { target: 'M67', slot: 't1' }, 'M54': { target: 'M67', slot: 't2' },
+            'M55': { target: 'M68', slot: 't1' }, 'M56': { target: 'M68', slot: 't2' },
+            'M65': { target: 'M73', slot: 't1' }, 'M66': { target: 'M73', slot: 't2' },
+            'M67': { target: 'M74', slot: 't1' }, 'M68': { target: 'M74', slot: 't2' },
+            'M73': { target: 'M77', slot: 't1' }, 'M74': { target: 'M77', slot: 't2' },
+            'M57': { target: 'M69', slot: 't1' }, 'M58': { target: 'M69', slot: 't2' },
+            'M59': { target: 'M70', slot: 't1' }, 'M60': { target: 'M70', slot: 't2' },
+            'M61': { target: 'M71', slot: 't1' }, 'M62': { target: 'M71', slot: 't2' },
+            'M63': { target: 'M72', slot: 't1' }, 'M64': { target: 'M72', slot: 't2' },
+            'M69': { target: 'M75', slot: 't1' }, 'M70': { target: 'M75', slot: 't2' },
+            'M71': { target: 'M76', slot: 't1' }, 'M72': { target: 'M76', slot: 't2' },
+            'M75': { target: 'M78', slot: 't1' }, 'M76': { target: 'M78', slot: 't2' },
+            'M77': { target: 'M80', slot: 't1' }, 'M78': { target: 'M80', slot: 't2' }
+        };
+        if (paths[matchId]) {
+            db[user][paths[matchId].target + "_" + paths[matchId].slot] = team;
+        }
+    }
+
+    function renderGroups() {
+        if (!activeUser) return;
+        const container = document.getElementById('groups-root'); container.innerHTML = '';
+
+        Object.keys(groupTeams).forEach(g => {
+            let groupPcts = calculateGroupPercentages(g);
+            let card = `<div class="group-card"><div class="group-header">Group ${g}</div>`;
+
+            ['1st', '2nd', '3rd'].forEach(pos => {
+                let saved = db[activeUser][`G_${g}_${pos}`] || '';
+                let options = `<option value="">-- Pick --</option>`;
+
+                groupTeams[g].forEach(t => {
+                    let pct = groupPcts[t] || 25;
+                    options += `<option value="${t}" ${saved === t ? 'selected' : ''}>${t} (${pct}%)</option>`;
+                });
+
+                card += `
+                    <div class="group-row">
+                        <span>${pos}:</span>
+                        <select class="group-select" onchange="selectGroupFinisher('${g}', '${pos}', this.value); renderTree();">
+                            ${options}
+                        </select>
+                    </div>`;
+            });
+            container.innerHTML += card + `</div>`;
+        });
+    }
+
+    function getLeftR32Matchups() {
+        let state = db[activeUser] || {};
+        return [
+            { id: "M49", s1: "2A", t1: state["G_A_2nd"] || "2A Winner", s2: "2B", t2: state["G_B_2nd"] || "2B Winner" },
+            { id: "M50", s1: "1A", t1: state["G_A_1st"] || "1A Winner", s2: "3C", t2: state["G_C_3rd"] || "3C Wildcard" },
+            { id: "M51", s1: "1B", t1: state["G_B_1st"] || "1B Winner", s2: "2C", t2: state["G_C_2nd"] || "2C Winner" },
+            { id: "M52", s1: "1C", t1: state["G_C_1st"] || "1C Winner", s2: "3D", t2: state["G_D_3rd"] || "3D Wildcard" },
+            { id: "M53", s1: "1D", t1: state["G_D_1st"] || "1D Winner", s2: "2E", t2: state["G_E_2nd"] || "2E Winner" },
+            { id: "M54", s1: "1E", t1: state["G_E_1st"] || "1E Winner", s2: "2F", t2: state["G_F_2nd"] || "2F Winner" },
+            { id: "M55", s1: "1F", t1: state["G_F_1st"] || "1F Winner", s2: "3A", t2: state["G_A_3rd"] || "3A Wildcard" },
+            { id: "M56", s1: "2D", t1: state["G_D_2nd"] || "2D Winner", s2: "2G", t2: state["G_G_2nd"] || "2G Winner" }
+        ];
+    }
+
+    function getRightR32Matchups() {
+        let state = db[activeUser] || {};
+        return [
+            { id: "M57", s1: "1G", t1: state["G_G_1st"] || "1G Winner", s2: "3E", t2: state["G_E_3rd"] || "3E Wildcard" },
+            { id: "M58", s1: "1H", t1: state["G_H_1st"] || "1H Winner", s2: "2J", t2: state["G_J_2nd"] || "2J Winner" },
+            { id: "M59", s1: "1I", t1: state["G_I_1st"] || "1I Winner", s2: "3G", t2: state["G_G_3rd"] || "3G Wildcard" },
+            { id: "M60", s1: "1J", t1: state["G_J_1st"] || "1J Winner", s2: "2H", t2: state["G_H_2nd"] || "2H Winner" },
+            { id: "M61", s1: "1K", t1: state["G_K_1st"] || "1K Winner", s2: "3I", t2: state["G_I_3rd"] || "3I Wildcard" },
+            { id: "M62", s1: "1L", t1: state["G_L_1st"] || "1L Winner", s2: "3K", t2: state["G_K_3rd"] || "3K Wildcard" },
+            { id: "M63", s1: "2K", t1: state["G_K_2nd"] || "2K Winner", s2: "2L", t2: state["G_L_2nd"] || "2L Winner" },
+            { id: "M64", s1: "2I", t1: state["G_I_2nd"] || "2I Winner", s2: "2J", t2: state["G_J_2nd"] || "2J Winner" }
+        ];
+    }
+
+    function renderTree() {
+        if (!activeUser) return;
+        const root = document.getElementById('bracket-root'); root.innerHTML = '';
+        let state = db[activeUser];
+
+        let col1 = `<div class="column"><div class="column-title">Last 32 (A-F)</div>`;
+        getLeftR32Matchups().forEach(m => col1 += generateMatchNode(m.id, m.t1, m.t2, state[m.id]||'', m.s1, m.s2));
+        col1 += `</div>`;
+
+        let col2 = `<div class="column"><div class="column-title">Last 16</div>`;
+        ['M65', 'M66', 'M67', 'M68'].forEach(id => col2 += generateMatchNode(id, state[id+"_t1"]||'', state[id+"_t2"]||'', state[id]||'', 'W49/50','W51/52'));
+        col2 += `</div>`;
+
+        let col3 = `<div class="column"><div class="column-title">Quarters</div>`;
+        ['M73', 'M74'].forEach(id => col3 += generateMatchNode(id, state[id+"_t1"]||'', state[id+"_t2"]||'', state[id]||'', 'W65/66','W67/68'));
+        col3 += `</div>`;
+
+        let col4 = `
+            <div class="column">
+                <div class="center-stage">
+                    <div style="width:100%">
+                        <div class="column-title">Semifinal 1 (M77)</div>
+                        ${generateMatchNode('M77', state['M77_t1']||'', state['M77_t2']||'', state['M77']||'', 'W73','W74')}
+                    </div>
+                    <div style="width:100%">
+                        <div class="column-title">Final (M80)</div>
+                        ${generateMatchNode('M80', state['M80_t1']||'', state['M80_t2']||'', state['M80']||'', 'W77','W78')}
+                    </div>
+                    <div class="podium">
+                        <div style="font-size:0.65rem; text-transform:uppercase;">🏆 Champion</div>
+                        <div style="font-size:1.05rem; margin-top:3px;">${state['M80'] || '???'}</div>
+                    </div>
+                    <div style="width:100%">
+                        <div class="column-title">Semifinal 2 (M78)</div>
+                        ${generateMatchNode('M78', state['M78_t1']||'', state['M78_t2']||'', state['M78']||'', 'W75','W76')}
+                    </div>
+                </div>
+            </div>`;
+
+        let col5 = `<div class="column"><div class="column-title">Quarters</div>`;
+        ['M75', 'M76'].forEach(id => col5 += generateMatchNode(id, state[id+"_t1"]||'', state[id+"_t2"]||'', state[id]||'', 'W69/70','W71/72'));
+        col5 += `</div>`;
+
+        let col6 = `<div class="column"><div class="column-title">Last 16</div>`;
+        ['M69', 'M70', 'M71', 'M72'].forEach(id => col6 += generateMatchNode(id, state[id+"_t1"]||'', state[id+"_t2"]||'', state[id]||'', 'W57/58','W59/60'));
+        col6 += `</div>`;
+
+        let col7 = `<div class="column"><div class="column-title">Last 32 (G-L)</div>`;
+        getRightR32Matchups().forEach(m => col7 += generateMatchNode(m.id, m.t1, m.t2, state[m.id]||'', m.s1, m.s2));
+        col7 += `</div>`;
+
+        root.innerHTML = col1 + col2 + col3 + col4 + col5 + col6 + col7;
+    }
+
+    function generateMatchNode(id, team1, team2, currentSelection, seed1, seed2) {
+        let hasValidTeams = team1 && team2 && !team1.includes('Winner') && !team1.includes('Wildcard') && !team2.includes('Winner') && !team2.includes('Wildcard');
+
+        let displayOdds1 = '';
+        let displayOdds2 = '';
+
+        if (hasValidTeams) {
+            let calculation = calculateLooseHeadToHeadOdds(team1, team2);
+            displayOdds1 = calculation.odds1 + '%';
+            displayOdds2 = calculation.odds2 + '%';
+        }
+
+        return `
+            <div class="matchup" style="margin: 4px 0;">
+                <div class="team-row ${(currentSelection === team1 && team1 && !team1.includes('Winner') && !team1.includes('Wildcard')) ? 'selected' : ''}" onclick="selectWinner('${id}', '${team1}')">
+                    <span class="seed-badge">${seed1}</span><span>${team1}</span>
+                    ${displayOdds1 ? `<span class="odds-badge">${displayOdds1}</span>` : ''}
+                </div>
+                <div style="height: 1px; background: var(--border-color); margin: 1px 3px;"></div>
+                <div class="team-row ${(currentSelection === team2 && team2 && !team2.includes('Winner') && !team2.includes('Wildcard')) ? 'selected' : ''}" onclick="selectWinner('${id}', '${team2}')">
+                    <span class="seed-badge">${seed2}</span><span>${team2}</span>
+                    ${displayOdds2 ? `<span class="odds-badge">${displayOdds2}</span>` : ''}
+                </div>
+            </div>`;
+    }
+
+    async function sendDataToCloud() {
+        if (!activeUser) return;
+        document.getElementById('status').innerText = "🔄 Syncing profile state to individual tab...";
+        try {
+            await fetch(WEB_APP_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ player: activeUser, picks: db[activeUser] })
+            });
+            document.getElementById('status').innerText = "✅ Saved Successfully!";
+        } catch (e) {
+            document.getElementById('status').innerText = "❌ Sync timeout.";
+        }
+    }
+</script>
+</body>
+</html>
