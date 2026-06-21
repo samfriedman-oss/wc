@@ -24,7 +24,7 @@
         header { text-align: center; margin-bottom: 20px; }
         h1 { margin: 0; font-size: 1.8rem; color: #38bdf8; text-transform: uppercase; }
 
-        .tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 25px; }
+        .tabs { display: flex; justify-content: center; gap: 6px; margin-bottom: 25px; flex-wrap: wrap; }
         .tab-btn {
             background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-muted);
             padding: 10px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; transition: all 0.2s;
@@ -85,6 +85,8 @@
         <button class="tab-btn" id="btn-poppa" onclick="switchUser('poppa')">Poppa</button>
         <button class="tab-btn" id="btn-alan" onclick="switchUser('alan')">Alan</button>
         <button class="tab-btn" id="btn-terry" onclick="switchUser('terry')">Terry</button>
+        <button class="tab-btn" id="btn-shane" onclick="switchUser('shane')">Shane</button>
+        <button class="tab-btn" id="btn-rael" onclick="switchUser('rael')">Rael</button>
     </div>
 
     <div id="engine-workspace" style="display: none;">
@@ -147,11 +149,13 @@
         barry: "barryfriedman",
         alan: "alanfriedman",
         poppa: "earlefriedman",
-        terry: "terrybloch"
+        terry: "terrybloch",
+        shane: "shanediamond",
+        rael: "raeldiamond"
     };
 
     let activeUser = null;
-    let db = { master: {}, sam: {}, daniel: {}, barry: {}, poppa: {}, alan: {}, terry: {} };
+    let db = { master: {}, sam: {}, daniel: {}, barry: {}, poppa: {}, alan: {}, terry: {}, shane: {}, rael: {} };
 
     function switchUser(userId) {
         let input = prompt(`Enter security password to access ${userId.toUpperCase()}'s bracket profile:`);
@@ -163,7 +167,7 @@
 
         activeUser = userId;
 
-        const userList = ['master','sam','daniel','barry','poppa','alan','terry'];
+        const userList = ['master','sam','daniel','barry','poppa','alan','terry','shane','rael'];
         userList.forEach(u => {
             document.getElementById(`btn-${u}`).classList.toggle('active', u === userId);
         });
@@ -225,7 +229,7 @@
         db[activeUser][`G_${groupLetter}_${slot}`] = val;
 
         if (activeUser === 'master') {
-            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+            ['sam','daniel','barry','poppa','alan','terry','shane','rael'].forEach(p => {
                 db[p][`G_${groupLetter}_${slot}`] = val;
             });
         }
@@ -242,7 +246,7 @@
         db[activeUser] = {};
 
         if (activeUser === 'master') {
-            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+            ['sam','daniel','barry','poppa','alan','terry','shane','rael'].forEach(p => {
                 db[p] = {};
             });
         }
@@ -267,7 +271,7 @@
             db[activeUser][`G_${g}_3rd`] = pool[2];
 
             if (activeUser === 'master') {
-                ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                ['sam','daniel','barry','poppa','alan','terry','shane','rael'].forEach(p => {
                     db[p][`G_${g}_1st`] = pool[0];
                     db[p][`G_${g}_2nd`] = pool[1];
                     db[p][`G_${g}_3rd`] = pool[2];
@@ -280,7 +284,7 @@
             delete db[activeUser][`M${m}_t1`];
             delete db[activeUser][`M${m}_t2`];
             if (activeUser === 'master') {
-                ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+                ['sam','daniel','barry','poppa','alan','terry','shane','rael'].forEach(p => {
                     delete db[p][`M${m}`];
                     delete db[p][`M${m}_t1`];
                     delete db[p][`M${m}_t2`];
@@ -326,7 +330,7 @@
         if (!selectedTeam || selectedTeam.includes('Winner') || selectedTeam.includes('Wildcard') || selectedTeam === "Pending") return;
         db[activeUser][matchId] = selectedTeam;
         if (activeUser === 'master') {
-            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+            ['sam','daniel','barry','poppa','alan','terry','shane','rael'].forEach(p => {
                 db[p][matchId] = selectedTeam;
                 propagateTreeNodes(matchId, selectedTeam, p);
             });
@@ -338,7 +342,7 @@
         if (!activeUser || !selectedTeam || selectedTeam.includes('Winner') || selectedTeam.includes('Wildcard') || selectedTeam === "") return;
         db[activeUser][matchId] = selectedTeam;
         if (activeUser === 'master') {
-            ['sam','daniel','barry','poppa','alan','terry'].forEach(p => {
+            ['sam','daniel','barry','poppa','alan','terry','shane','rael'].forEach(p => {
                 db[p][matchId] = selectedTeam;
                 propagateTreeNodes(matchId, selectedTeam, p);
             });
